@@ -26,7 +26,7 @@ async function handleText(senderId, text) {
         { content_type: "text", title: "📖 Xem Menu", payload: "VIEW_MENU" },
         { content_type: "text", title: "📅 Đặt Bàn", payload: "BOOK_TABLE" },
     ]);
-    await sendTextMessage(senderId, text);
+    // await sendTextMessage(senderId, text);
 }
 
 export default handleText;
