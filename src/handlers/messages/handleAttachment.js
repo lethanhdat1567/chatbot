@@ -1,0 +1,1 @@
+function handleAttachment(senderId, message) {}
