@@ -1,4 +1,4 @@
-import { sendButtonMessage, sendTextMessage } from "../../services/facebook.service.js";
+import { sendButtonMessage, sendQuickReplies, sendTextMessage } from "../../services/facebook.service.js";
 
 async function handleText(senderId, text) {
     await sendButtonMessage(
