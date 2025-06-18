@@ -7,9 +7,13 @@ export async function runFlow(senderId, message, flow) {
     let currentNodeId = userStates[senderId] || flow.start;
     const currentNode = flow.nodes[currentNodeId];
 
-    // Nếu đang ở node có reply/quick
+    if (!currentNode) {
+        await sendTextMessage(senderId, "⚠️ Bot hiện tại không hiểu ý bạn.");
+        return;
+    }
+
+    // Node có quick_reply
     if (currentNode.type === "quick_reply") {
-        // Nếu là lần đầu => gửi câu hỏi và options
         if (message === "__init") {
             const quickReplies = currentNode.options.map((opt) => ({
                 content_type: "text",
@@ -20,7 +24,6 @@ export async function runFlow(senderId, message, flow) {
             return;
         }
 
-        // Người dùng vừa gửi trả lời → check điều kiện
         const matched = currentNode.transitions.find((t) => t.condition === message);
         if (matched) {
             userStates[senderId] = matched.next;
@@ -31,9 +34,22 @@ export async function runFlow(senderId, message, flow) {
         }
     }
 
+    // Node là text
     if (currentNode.type === "text") {
         await sendTextMessage(senderId, currentNode.text);
-        userStates[senderId] = flow.start;
+
+        // Nếu có chuyển tiếp thì tiếp tục
+        const matched = currentNode.transitions?.[0];
+        if (matched) {
+            userStates[senderId] = matched.next;
+        } else {
+            // Kết thúc flow nếu không còn bước tiếp theo
+            delete userStates[senderId];
+        }
+
         return;
     }
+
+    // Trường hợp node không hợp lệ
+    await sendTextMessage(senderId, "⚠️ Flow bị lỗi cấu hình.");
 }
