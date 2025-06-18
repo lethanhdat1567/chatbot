@@ -14,7 +14,7 @@ export async function runFlow(senderId, message, flow) {
 
     // Node có quick_reply
     if (currentNode.type === "quick_reply") {
-        if (message === "__init") {
+        if (message === "__init" || message === "__retry") {
             const quickReplies = currentNode.options.map((opt) => ({
                 content_type: "text",
                 title: opt,
@@ -30,7 +30,7 @@ export async function runFlow(senderId, message, flow) {
             return runFlow(senderId, "__init", flow);
         } else {
             await sendTextMessage(senderId, "❗ Không hiểu ý bạn, hãy chọn lại.");
-            return runFlow(senderId, "__init", flow);
+            return runFlow(senderId, "__retry", flow); // ❗ Gọi lại với "__retry" để dừng vòng lặp vô hạn
         }
     }
 
