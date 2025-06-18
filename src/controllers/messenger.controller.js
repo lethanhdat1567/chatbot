@@ -24,7 +24,6 @@ class messengerControler {
             for (const entry of body.entry) {
                 const event = entry.messaging[0];
                 const senderId = event.sender.id;
-                console.log("123");
 
                 await handleMessage(senderId, event);
             }
