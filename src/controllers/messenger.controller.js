@@ -1,5 +1,5 @@
 import config from "../config/index.js";
-import { handleMessage } from "../handlers/index.js";
+import { handleMessage } from "../utils/handleMessage.js";
 
 class messengerControler {
     // Xác nhận người dùng

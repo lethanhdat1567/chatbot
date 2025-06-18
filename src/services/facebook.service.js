@@ -1,75 +1,139 @@
 import axios from "axios";
 import config from "../config/index.js";
 
-// Gửi tin nhắn văn bản
-export const sendTextMessage = async (senderId, text) => {
-    try {
-        const url = `https://graph.facebook.com/v18.0/me/messages?access_token=${config.pageAccessToken}`;
-        const body = {
-            recipient: { id: senderId },
-            message: { text },
-        };
+const graphUrl = `https://graph.facebook.com/v18.0/me/messages?access_token=${config.pageAccessToken}`;
 
-        console.log("Sending message to Facebook:", body);
-        await axios.post(url, body);
-    } catch (error) {
-        if (error.response) {
-            console.error("Facebook API error:", error.response.data);
-        } else {
-            console.error("Send message error:", error.message);
-        }
-    }
+// 1. Gửi tin nhắn văn bản
+export const sendTextMessage = async (senderId, text) => {
+    await sendRequest({
+        recipient: { id: senderId },
+        message: { text },
+    });
 };
 
-// Gửi tin nhắn dạng button template (postback)
+// 2. Gửi nút bấm dạng button template
 export const sendButtonMessage = async (senderId, text, buttons) => {
-    try {
-        const url = `https://graph.facebook.com/v18.0/me/messages?access_token=${config.pageAccessToken}`;
-        const body = {
-            recipient: { id: senderId },
-            message: {
-                attachment: {
-                    type: "template",
-                    payload: {
-                        template_type: "button",
-                        text,
-                        buttons,
-                    },
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text,
+                    buttons,
                 },
             },
-        };
-
-        console.log("Sending button message to Facebook:", body);
-        await axios.post(url, body);
-    } catch (error) {
-        if (error.response) {
-            console.error("Facebook API error:", error.response.data);
-        } else {
-            console.error("Send button message error:", error.message);
-        }
-    }
+        },
+    });
 };
 
-// Mở quick button
+// 3. Gửi Quick Replies
 export const sendQuickReplies = async (senderId, text, replies) => {
-    try {
-        const url = `https://graph.facebook.com/v18.0/me/messages?access_token=${config.pageAccessToken}`;
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            text,
+            quick_replies: replies,
+        },
+    });
+};
 
-        const body = {
-            recipient: { id: senderId },
-            message: {
-                text,
-                quick_replies: replies,
+// 4. Gửi Media (image, audio, video, file)
+export const sendMediaMessage = async (senderId, type, mediaUrl) => {
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            attachment: {
+                type, // image | audio | video | file
+                payload: {
+                    url: mediaUrl,
+                    is_reusable: true,
+                },
             },
-        };
+        },
+    });
+};
 
-        await axios.post(url, body);
-        console.log("✅ Đã gửi quick replies:", replies);
+// 5. Gửi Generic Template (carousel)
+export const sendGenericTemplate = async (senderId, elements) => {
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "generic",
+                    elements, // array
+                },
+            },
+        },
+    });
+};
+
+// 6. Gửi List Template
+export const sendListTemplate = async (senderId, elements, buttons = []) => {
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "list",
+                    top_element_style: "compact",
+                    elements, // array of items (max 4)
+                    buttons, // optional global button
+                },
+            },
+        },
+    });
+};
+
+// 7. Gửi Media Template (kèm nút trong ảnh/video)
+export const sendMediaTemplate = async (senderId, mediaType, mediaUrl, buttons = []) => {
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "media",
+                    elements: [
+                        {
+                            media_type: mediaType, // image | video
+                            url: mediaUrl,
+                            buttons,
+                        },
+                    ],
+                },
+            },
+        },
+    });
+};
+
+// 8. Gửi One-time Notification Request
+export const sendOneTimeNotificationRequest = async (senderId, text, payload) => {
+    await sendRequest({
+        recipient: { id: senderId },
+        message: {
+            text,
+            quick_replies: [
+                {
+                    content_type: "one_time_notif_req",
+                    payload,
+                },
+            ],
+        },
+    });
+};
+
+// 🔁 Gửi yêu cầu đến Facebook API
+const sendRequest = async (body) => {
+    try {
+        console.log("▶️ Sending:", JSON.stringify(body, null, 2));
+        await axios.post(graphUrl, body);
+        console.log("✅ Sent successfully");
     } catch (error) {
-        if (error.response) {
-            console.error("❌ Lỗi gửi quick replies:", error.response.data);
-        } else {
-            console.error("❌ Lỗi:", error.message);
-        }
+        console.error("❌ Facebook API error:", error.response?.data || error.message);
     }
 };
