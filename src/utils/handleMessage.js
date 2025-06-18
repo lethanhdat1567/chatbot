@@ -1,6 +1,6 @@
-import { sendTextMessage } from "../services/facebook.service";
+import { sendTextMessage } from "../services/facebook.service.js";
 import { runFlow } from "../flows/flows.js";
-import { menuFlow } from "../flows/sampleFlow";
+import { menuFlow } from "../flows/sampleFlow.js";
 
 async function handleMessage(senderId, event) {
     const message = event.message?.text || event.postback?.payload;
