@@ -3,6 +3,7 @@ import handleMessage from "../utils/handleMessage.js";
 
 class messengerControler {
     // Xác nhận người dùng
+
     verify(req, res) {
         const mode = req.query["hub.mode"];
         const token = req.query["hub.verify_token"];
@@ -23,6 +24,7 @@ class messengerControler {
             for (const entry of body.entry) {
                 const event = entry.messaging[0];
                 const senderId = event.sender.id;
+                console.log("123");
 
                 await handleMessage(senderId, event);
             }
